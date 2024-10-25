@@ -1,0 +1,58 @@
+apiVersion: apps/v1 # Defines the version of the Kubernetes API you're using
+kind: Deployment # Specifies the kind of object you're creating. This is a Deployment object.
+metadata:
+  name: auth-postgres-depl # Name of the deployment (can be anything you want, e.g., "my-postgres-deployment")
+  labels:
+    app: auth-postgres-depl # Labels are key-value pairs to identify this deployment (can be customized).
+spec:
+  replicas: 1 # Specifies the number of pods to run (you can change this to scale the app).
+  selector:
+    matchLabels:
+      app: auth-postgres # This selector matches the pod label (must match the labels in template section).
+  template:
+    metadata:
+      labels:
+        app: auth-postgres # Labels applied to the pods created by this deployment. You can name it anything, but it must match the selector.
+    spec:
+      containers:
+        - name: auth-postgres # The container name (can be customized, e.g., "my-postgres")
+          image: postgres:13 # The PostgreSQL image you want to use. You can change the version (e.g., postgres:14).
+          env:
+            - name: POSTGRES_USER # Environment variables for the PostgreSQL container. You can set your own user.
+              value: "admin" # The PostgreSQL username (can be any value).
+            - name: POSTGRES_PASSWORD # Set the password for PostgreSQL (change the value to anything secure).
+              value: SAHAN123 # Replace "password" with a strong password.
+            - name: POSTGRES_DB # Name of the database that will be created on initialization.
+              value: "AuthDB" # Replace "mydatabase" with any name for your database.
+          ports:
+            - containerPort: 5432 # The port PostgreSQL will listen on inside the container (this should remain 5432).
+          volumeMounts:
+            - name: auth-postgres-storage # Reference to the volume name where the data will be stored (can be named anything).
+              mountPath: /var/lib/postgresql/data # This is the default PostgreSQL data directory. Don’t change this.
+      volumes:
+        - name: auth-postgres-storage # Defining the volume name (matches the volumeMount name above).
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim # PersistentVolumeClaim, defined below. You can rename this to match.
+---
+apiVersion: v1 # This specifies the version of the Kubernetes API (v1 is for core API objects like PersistentVolumeClaim).
+kind: PersistentVolumeClaim # Declaring a PersistentVolumeClaim (PVC) object.
+metadata:
+  name: postgres-pv-claim # The name of the PVC (this can be customized, but it must match the volume's claimName in the Deployment).
+spec:
+  accessModes:
+    - ReadWriteOnce # Specifies that the volume can be mounted in read-write mode by a single node.
+  resources:
+    requests:
+      storage: 500Mi # The amount of storage requested for PostgreSQL (you can adjust this size).
+---
+apiVersion: v1 # The version of the API (v1 for core objects like Service).
+kind: Service # Declaring a Service object (type ClusterIP, which is the default).
+metadata:
+  name: auth-postgres-srv # The name of the service (can be customized, but must be referenced by other apps or pods to connect to PostgreSQL).
+spec:
+  type: ClusterIP # The service type (ClusterIP exposes the service internally within the cluster). Other types include NodePort or LoadBalancer.
+  selector:
+    app: auth-postgres # This label selector matches the label of the pods defined in the Deployment (must match).
+  ports:
+    - port: 5432 # The port that the service will expose within the cluster (PostgreSQL default is 5432).
+      targetPort: 5432 # The port that the PostgreSQL container is listening on inside the pod (usually the same as port).

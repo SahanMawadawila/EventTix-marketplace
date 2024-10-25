@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-srv
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true" # This is to enable regex in the ingress controller
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ticketing.dev
+      http:
+        paths:
+          - path: /api/users/?(.*) #any request that starts with /api/users send to auth-srv
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: auth-srv #cluster ip service name
+                port:
+                  number: 3000

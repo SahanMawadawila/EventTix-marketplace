@@ -1,0 +1,18 @@
+apiVersion: skaffold/v2beta3
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/*
+build:
+  local:
+    push: false
+  artifacts:
+    - image: sahansithira/auth
+      context: Auth # folder where the Dockerfile is located
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts" # watch for changes in these files
+            dest: . # copy them to the root of the context
