@@ -15,6 +15,12 @@ spec:
       containers:
         - name: auth
           image: sahansithira/auth
+          env:
+            - name: JWT_KEY # This is the environment variable for the JWT key. we will create a secret for this. This name will be used in the code.
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret # This name must match the secret object name.
+                  key: JWT_KEY # This key must match the key in the secret object.
 ---
 apiVersion: v1
 kind: Service

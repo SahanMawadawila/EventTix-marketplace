@@ -3,6 +3,7 @@ import { UserModel } from "../models/userModel";
 import { validationResult } from "express-validator";
 import { RequestValidationError } from "../errors/request-validation-error";
 import { DatabaseConnectionError } from "../errors/database-connection-error";
+import jwt from "jsonwebtoken";
 
 export const createUser = async (req: Request, res: Response) => {
   const errors = validationResult(req); //checks if there are any errors attached to the request object
@@ -23,6 +24,19 @@ export const createUser = async (req: Request, res: Response) => {
     }
 
     const newUser = await UserModel.createUser(email, password);
+
+    const userJwt = jwt.sign(
+      {
+        id: newUser.email,
+        email: newUser.email,
+      },
+      process.env.JWT_KEY! // '!' tells typescript that we are sure that JWT_KEY is defined. we should check it before connecting to the database
+    );
+
+    req.session = {
+      //req.session is an object that is added by cookie-session middleware
+      jwt: userJwt,
+    };
     console.log("User created successfully");
     return res.status(201).send(newUser);
   } catch (err) {

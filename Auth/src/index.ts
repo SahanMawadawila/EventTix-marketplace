@@ -9,9 +9,18 @@ import { signupRouter } from "./routes/signup";
 import { errorHandler } from "./middleware/error-handling";
 import { NotFoundError } from "./errors/not-found";
 import { createTable, pool } from "./config/db";
+import cookieSession from "cookie-session";
 
 const app = express();
 app.use(json());
+app.set("trust proxy", true); // trust traffic as secure even though it is coming from a proxy
+
+app.use(
+  cookieSession({
+    signed: false, // disable encryption
+    secure: true, // only use cookies over https
+  })
+);
 
 app.use(currentUserRouter);
 app.use(signinRouter);
@@ -24,6 +33,9 @@ app.all("*", async () => {
 app.use(errorHandler);
 
 const start = async () => {
+  if (!process.env.JWT_KEY) {
+    throw new Error("JWT_KEY must be defined");
+  }
   try {
     await pool.connect();
     await createTable();

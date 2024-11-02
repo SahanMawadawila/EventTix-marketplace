@@ -11,9 +11,9 @@ export const pool = new Pool({
 //create a table in the database
 export const createTable = async () => {
   const queryText = `CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
+      id SERIAL PRIMARY KEY, 
       email VARCHAR(100) UNIQUE NOT NULL,
       password VARCHAR(100) NOT NULL
-    );`;
+    );`; //not like mongodb, we have to give id field explicitly
   await pool.query(queryText);
 };
