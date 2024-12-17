@@ -1,18 +1,9 @@
 import { Request, Response } from "express";
 import { UserModel } from "../models/userModel";
-import { validationResult } from "express-validator";
-import { RequestValidationError } from "../errors/request-validation-error";
 import { DatabaseConnectionError } from "../errors/database-connection-error";
 import jwt from "jsonwebtoken";
-
+import bcrypt from "bcrypt";
 export const createUser = async (req: Request, res: Response) => {
-  const errors = validationResult(req); //checks if there are any errors attached to the request object
-
-  if (!errors.isEmpty()) {
-    throw new RequestValidationError(errors.array());
-    //errors.array() returns an array of errors. means if user violates 3 rules, in validation, it will return an array of 3 errors.
-    //create a object of class RequestValidationError and pass the array of errors to constructor of it
-  }
   const { email, password } = req.body;
 
   try {
@@ -38,8 +29,57 @@ export const createUser = async (req: Request, res: Response) => {
       jwt: userJwt,
     };
     console.log("User created successfully");
-    return res.status(201).send(newUser);
+    return res.status(201).send({
+      id: newUser.id,
+      email: newUser.email,
+    });
   } catch (err) {
     throw new DatabaseConnectionError();
   }
+};
+
+export const authenticateUser = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await UserModel.findUser(email);
+    if (!user) {
+      console.log("User not found");
+      return res.status(400).send([{ message: "Invalid credentials" }]);
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      console.log("Invalid credentials");
+      return res.status(400).send([{ message: "Invalid credentials" }]);
+    }
+
+    const userJwt = jwt.sign(
+      {
+        id: user.email,
+        email: user.email,
+      },
+      process.env.JWT_KEY!
+    );
+
+    req.session = {
+      jwt: userJwt,
+    };
+    console.log("User authenticated successfully");
+    return res.status(200).send({
+      id: user.id,
+      email: user.email,
+    });
+  } catch (err) {
+    throw new DatabaseConnectionError();
+  }
+};
+
+export const currentUserController = async (req: Request, res: Response) => {
+  return res.send({ currentUser: req.currentUser || null });
+};
+
+export const signOut = async (req: Request, res: Response) => {
+  req.session = null; //remove the jwt from the session object
+  res.send({});
 };

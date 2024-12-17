@@ -2,6 +2,7 @@ import { pool } from "../config/db";
 import bcrypt from "bcrypt";
 
 export interface User {
+  id: number;
   email: string;
   password: string;
 }
