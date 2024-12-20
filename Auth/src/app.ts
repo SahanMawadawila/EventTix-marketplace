@@ -15,10 +15,11 @@ const app = express();
 app.use(json());
 app.set("trust proxy", true); // trust traffic as secure even though it is coming from a proxy
 
+console.log(process.env.NODE_ENV);
 app.use(
   cookieSession({
     signed: false, // disable encryption
-    secure: true, // only use cookies over https
+    secure: process.env.NODE_ENV !== "test", // only use cookies over https (in test environment it is http)
   })
 );
 
