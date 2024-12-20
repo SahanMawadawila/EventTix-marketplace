@@ -1,10 +1,11 @@
 import { Pool } from "pg";
 // Create a new instance of Pool. using this instance we can connect to the database and execute queries
+
 export const pool = new Pool({
-  user: "admin",
-  host: "auth-postgres-srv",
+  user: process.env.NODE_ENV === "test" ? "postgres" : "admin",
+  host: process.env.NODE_ENV === "test" ? "localhost" : "auth-postgres-srv",
   database: "AuthDB",
-  password: "SAHAN123",
+  password: process.env.NODE_ENV === "test" ? "sahan123" : "SAHAN123",
   port: 5432,
 });
 

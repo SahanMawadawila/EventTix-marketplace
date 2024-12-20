@@ -3,9 +3,10 @@ import { UserModel } from "../models/userModel";
 import { DatabaseConnectionError } from "../errors/database-connection-error";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+
+//create a new user
 export const createUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
   try {
     const user = await UserModel.findUser(email);
     if (user) {
@@ -29,6 +30,7 @@ export const createUser = async (req: Request, res: Response) => {
       jwt: userJwt,
     };
     console.log("User created successfully");
+    console.log(process.env.NODE_ENV);
     return res.status(201).send({
       id: newUser.id,
       email: newUser.email,
