@@ -3,6 +3,20 @@
 import { beforeAll, beforeEach, afterAll } from "@jest/globals";
 //import { IMemoryDb } from "pg-mem";
 import { pool, createTable } from "../config/db";
+import request from "supertest";
+import { app } from "../app";
+
+//global declaration
+
+declare global {
+  namespace NodeJS {
+    interface Global {
+      getCookie: () => Promise<string[]>;
+    }
+  }
+
+  var getCookie: () => Promise<string[]>;
+}
 
 //before all function (before all tests connect to the database)
 
@@ -32,3 +46,18 @@ beforeEach(async () => {
 afterAll(() => {
   pool.end();
 });
+
+global.getCookie = async () => {
+  const email = "sahan12@gmail.com";
+  const password = "hello";
+  const response = await request(app)
+    .post("/api/users/signup")
+    .send({
+      email,
+      password,
+    })
+    .expect(201);
+
+  const cookie = response.get("Set-Cookie") as string[];
+  return cookie;
+};
