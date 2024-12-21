@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app } from "../../app";
-import { it } from "@jest/globals";
+import { it, expect } from "@jest/globals";
 
 //try to sign in with a email that does not exist
 it("fails when a email that does not exist is supplied", async () => {

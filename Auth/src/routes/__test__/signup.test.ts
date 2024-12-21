@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app } from "../../app";
-import { it } from "@jest/globals";
+import { it, expect } from "@jest/globals";
 
 it("returns 201 on successful signup", async () => {
   return request(app)

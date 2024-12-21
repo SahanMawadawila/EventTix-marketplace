@@ -17,3 +17,10 @@ spec:
                 name: auth-srv #cluster ip service name
                 port:
                   number: 3000
+          - path: /?(.*) #any request that starts with / send to client-srv
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: client-srv #cluster ip service name
+                port:
+                  number: 3000
