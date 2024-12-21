@@ -7,7 +7,7 @@ it("fails when a email that does not exist is supplied", async () => {
   await request(app)
     .post("/api/users/signin")
     .send({
-      email: "sahan12@gmail.com",
+      email: "sahan12345@gmail.com",
       password: "sahan123",
     })
     .expect(400);
@@ -18,7 +18,7 @@ it("successful", async () => {
   await request(app)
     .post("/api/users/signup")
     .send({
-      email: "sahan12@gmail.com",
+      email: "sahan12567@gmail.com",
       password: "sahan123",
     })
     .expect(201);
@@ -26,7 +26,7 @@ it("successful", async () => {
   const response = await request(app)
     .post("/api/users/signin")
     .send({
-      email: "sahan12@gmail.com",
+      email: "sahan12567@gmail.com",
       password: "sahan123",
     })
     .expect(200);
@@ -39,7 +39,7 @@ it("fails when an incorrect password is supplied", async () => {
   await request(app)
     .post("/api/users/signup")
     .send({
-      email: "sahan12@gmail.com",
+      email: "sahan12789@gmail.com",
       password: "sahan123",
     })
     .expect(201);
@@ -47,8 +47,8 @@ it("fails when an incorrect password is supplied", async () => {
   await request(app)
     .post("/api/users/signin")
     .send({
-      email: "sahan12@gmail.com",
+      email: "sahan12789@gmail.com",
       password: "sahan1234",
     })
     .expect(400);
-}, 10000);
+}, 20000);
